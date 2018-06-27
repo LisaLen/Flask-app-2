@@ -16,6 +16,7 @@ def get_student():
     first, last, github = hackbright.get_student_by_github(github)
     grades_and_titles = hackbright.get_grades_by_github(github)
 
+
     html = render_template('student_info.html', 
                             first=first,
                             last=last,
@@ -24,11 +25,15 @@ def get_student():
 
     return html
 
-@app.route("/student-search")
+@app.route("/homepage")
 def get_student_form():
     """Show form for searching for a student."""
+    student_names = hackbright.get_all_students()
+    project_titles = hackbright.get_all_projects()
 
-    return render_template('student_search.html')
+    return render_template('homepage.html', 
+                            student_names=student_names, project_titles=project_titles)
+
 
 @app.route("/add_student")
 def add_student():
@@ -39,7 +44,7 @@ def new_student():
     fname = request.form.get('fname')
     lname= request.form.get('lname')
     github = request.form.get('github')
-    new_student = hackbright.make_new_student(fname, lname, github)
+    hackbright.make_new_student(fname, lname, github)
 
     
     return render_template('success.html')
@@ -55,10 +60,26 @@ def get_project_info():
         github = student[0]
         grade = student[1]
         student_name = hackbright.get_student_by_github(github)[0]
-        students_name_grade.append((student_name, grade))
+        students_name_grade.append((student_name, grade, github))
 
     return render_template('project_info.html', project_info=project_info,
                                                 student_names = students_name_grade)
+
+@app.route("/add-project")
+def add_project():
+    return render_template('add_project.html')
+
+@app.route("/new-project", methods=["POST"])
+def new_project():
+   title = request.form.get('title')
+   description = request.form.get('description')
+   max_grade = request.form.get('max_grade')
+
+
+   hackbright.make_new_project(title, description, max_grade)
+
+   return render_template('project_added.html')
+
 
 
 
